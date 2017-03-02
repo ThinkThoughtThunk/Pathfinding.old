@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Graphs</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css">
+  <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet">
+  <script src="graphs.js"></script>
+  <style>
+    body {
+      font-family: "Montserrat";
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: #222;
+      font-size: 0;
+      padding-top: 30px;
+    }
+
+    #graph {
+      border-radius: 5px;
+      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+      align-self: flex-start;
+      width: 525px;
+      height: 525px;
+      background-color: #ddd;
+    }
+
+    #help {
+      padding: 20px;
+      font-size: 18px;
+      border-radius: 5px;
+      margin-left: 20px;
+      line-height: 1.6em;
+      width: 250px;
+      height: 200px;
+      background-color: #222;
+      color: white;
+    }
+
+    .node {
+      display: inline-block;
+      width: 25px;
+      height: 25px;
+      border-radius: 100%;
+      background-color: #2C3E50;
+      margin: 5px;
+      cursor: pointer;
+      transition: .3s;
+    }
+
+    .path {
+      background-color: #2980B9;
+      transition:  1s;
+    }
+
+    .start {
+      background-color: #E74C3C;
+    }
+
+    .finish {
+      background-color: #E74C3C;
+    }
+
+    .wall {
+      background-color: #ddd;
+    }
+
+    button {
+      font-size: 16px;
+      padding: 10px 20px;
+      border: 2px solid #ddd;
+      background-color: #222;
+      color: #ddd;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="graph">
+  </div>
+  <div id="help">
+    <p>left click to <b>build a wall</b>.</p>
+    <br>
+    <p>right click to set start/finish.</p>
+    <br>
+    <button onclick="run()">run</button>
+    <br>
+    <br>
+    <p id="noPath"></p>
+  </div>
+  <script>
+    'use strict'
+
+    const graphNode = document.querySelector("#graph"),
+          width = 15,
+          height = 15,
+          vertices = createVertices(width, height),
+          edges = createEdges(vertices),
+          graph = new Graph(vertices, edges),
+          domNodes = createDomNodes(graphNode, width, height)
+
+    let start = setStart(2, 2),
+        finish = setFinish(9, 11)
+
+    function run() {
+      const noPathNode = document.querySelector('#noPath')
+      noPathNode.innerHTML = ""
+
+      // Clear all previous path nodes
+      for (let i in domNodes) {
+        let node = domNodes[i]
+        if (node.className == 'node active path ') {
+          node.className = 'node active '
+        }
+      }
+
+      // Calculate shortest paths
+      let djikstraGraph = djikstra(graph)
+      djikstraGraph.calculatePathsFrom(start)
+      let solution = djikstraGraph.getPath(finish)
+
+      if (!solution) {
+        noPathNode.innerHTML = "no path :("
+        return
+      }
+
+      // Display the shortest path on the page
+      for (let i = 0; i < solution.length; i++) {
+        // Ugly, but we seem to need a closure to properly delay coloring the node
+        (function() {
+          let vertex = solution[i]
+          setTimeout( () => document
+                              .querySelector('#' + toVertexId(vertex))
+                              .className += "path ", i * 200)
+        })()
+      }
+    }
+    run()
+  </script>
+</body>
+
+</html>
