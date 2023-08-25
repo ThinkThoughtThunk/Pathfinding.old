@@ -8,4 +8,4 @@ I wrote this in object-oriented style just to get a feel for it, since I had nev
 
 All the vertices are just connected to their neighbors, and you can click a vertex to remove it from or add it back to the available path options.
 
-![pathfinding](./pathfinding.png)
+![pathfinding](./pathfinding.webp)
